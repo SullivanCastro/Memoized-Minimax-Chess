@@ -42,7 +42,7 @@ This chess game AI uses the Minimax algorithm to evaluate possible moves and mak
 
 3. Run the game
   ```bash
-  python game.py --depth depth
+  python game.py --depth depth (--threat) (--defense)
   ```
 
 ## Usage
@@ -56,7 +56,7 @@ The Minimax algorithm explores possible moves up to a certain depth, assigning s
 
 ### Evaluation Function
 
-The evaluation function calculates the board's score by summing up piece values, considering threats and defenses. Each move generates a new board state, which is evaluated to decide on the best possible move.
+The evaluation function calculates the board's score by summing up piece values, considering threats and defenses. Each move generates a new board state, which is evaluated to decide on the best possible move. The threat mode takes into account the pieces targeted by the actual player. The defense mode takes into account the piece targeted by the other player.
 
 ### Key Parameters
 
