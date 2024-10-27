@@ -119,7 +119,7 @@ class Board:
         Returns:
             Board: New Board instance with the same layout and state.
         """
-        new_board                     = Board(self.grid, self.__moved.copy(), self.__transposition_table, self.__threat, self.__defense) 
+        new_board                     = Board(self.grid.copy(), self.__moved.copy(), self.__transposition_table, self.__threat, self.__defense) 
         new_board.turn                = self.turn
         new_board.checkmate           = self.checkmate
         return new_board
@@ -157,6 +157,8 @@ class Board:
             for move in self.possible_moves(coord):
                 new_board = self._copy()
                 new_board.move(coord, move)
+                if self[6, 7]==900 and new_board[7, 6]==900:
+                    a = 1
                 if not new_board._is_check(color):
                     return False
         return True
@@ -222,8 +224,8 @@ class Board:
 
         self[new_x, new_y] = self[x, y]
         self[x, y] = 0
-        self.__moved[(x, y)] = True
-
+        self.__moved[x, y] = True
+        self.__moved[new_x, new_y] = True
         if abs(piece) == 900 and abs(new_x - x) == 2:
             if new_x > x:
                 self[new_x - 1, new_y] = self[new_x + 1, new_y]
@@ -236,9 +238,9 @@ class Board:
 
         if abs(piece) == 10:
             if y==0 and piece>0:
-                self[new_x, new_y] = 9
+                self[new_x, new_y] = 90
             elif y==7 and piece<0:
-                self[new_x, new_y] = -9
+                self[new_x, new_y] = -90
     
 
     def minimax(self, depth: int, alpha: float, beta: float, maximizing: bool) -> tuple:

@@ -87,7 +87,7 @@ class MovePieces:
     
 
     @abstractmethod
-    def pawn_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _pawn_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a pawn
 
@@ -121,7 +121,7 @@ class MovePieces:
     
     
     @abstractmethod
-    def rook_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _rook_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a rook
 
@@ -137,6 +137,8 @@ class MovePieces:
         value = board[x, y]
         moves = []
         for dx, dy in product([-1, 0, 1], repeat=2):
+            if dx == dy == 0:
+                continue
             if abs(dx) + abs(dy) == 1:  # Horizontal or vertical only
                 step_x, step_y = dx, dy
                 while is_move_valid((x + step_x, y + step_y), board, value):
@@ -152,7 +154,7 @@ class MovePieces:
     
 
     @abstractmethod
-    def knight_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _knight_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a knight
 
@@ -181,7 +183,7 @@ class MovePieces:
     
 
     @abstractmethod
-    def bishop_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _bishop_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a bishop
 
@@ -211,7 +213,7 @@ class MovePieces:
     
 
     @abstractmethod
-    def queen_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _queen_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a queen
 
@@ -227,6 +229,8 @@ class MovePieces:
         value = board[x, y]
         moves = []
         for dx, dy in product([-1, 0, 1], repeat=2):
+            if dx == dy == 0:
+                continue
             step_x, step_y = dx, dy
             while is_move_valid((x + step_x, y + step_y), board, value):
                 moves.append((x + step_x, y + step_y))
@@ -241,7 +245,7 @@ class MovePieces:
     
 
     @abstractmethod
-    def king_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
+    def _king_move(board: ArrayLike, moved: ArrayLike, x: int, y: int) -> list:
         """
         Get the possible moves for a king
 
@@ -257,6 +261,8 @@ class MovePieces:
         value = board[x, y]
         moves = []
         for dx, dy in product([-1, 0, 1], repeat=2):
+            if dx == dy == 0:
+                continue
             if is_move_valid((x + dx, y + dy), board, value, True):
                 moves.append((x + dx, y + dy))
 
@@ -286,16 +292,16 @@ class MovePieces:
         """
         piece_value = board[coord]
         if   abs(piece_value) == 10:
-            return MovePieces.pawn_move(board, moved, *coord)
+            return MovePieces._pawn_move(board, moved, *coord)
         elif abs(piece_value) == 30:
-            return MovePieces.bishop_move(board, moved, *coord)
+            return MovePieces._bishop_move(board, moved, *coord)
         elif abs(piece_value) == 40:
-            return MovePieces.knight_move(board, moved, *coord)
+            return MovePieces._knight_move(board, moved, *coord)
         elif abs(piece_value) == 50:
-            return MovePieces.rook_move(board, moved, *coord)
+            return MovePieces._rook_move(board, moved, *coord)
         elif abs(piece_value) == 90:
-            return MovePieces.queen_move(board, moved, *coord)
+            return MovePieces._queen_move(board, moved, *coord)
         elif abs(piece_value) == 900:
-            return MovePieces.king_move(board, moved, *coord)
+            return MovePieces._king_move(board, moved, *coord)
         
         

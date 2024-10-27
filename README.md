@@ -1,15 +1,22 @@
 # Chess AI with Minimax Algorithm
 
+![Fool's Mate + Small Castling](Image/Chess.gif)
+
+
 This project implements a chess game AI powered by the Minimax algorithm with alpha-beta pruning. The AI is designed to play competitive chess moves, simulating intelligent gameplay based on a score-evaluation system. The project can serve as a base for further AI development in chess or other board games.
 
 ## Table of Contents
-- [Project Overview](#project-overview)
-- [Features](#features)
-- [Installation](#installation)
-- [Usage](#usage)
-- [AI Algorithm Details](#ai-algorithm-details)
-- [Contributing](#contributing)
-- [License](#license)
+- [Chess AI with Minimax Algorithm](#chess-ai-with-minimax-algorithm)
+  - [Table of Contents](#table-of-contents)
+  - [Project Overview](#project-overview)
+  - [Features](#features)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [AI Algorithm Details](#ai-algorithm-details)
+    - [Minimax with Alpha-Beta Pruning](#minimax-with-alpha-beta-pruning)
+    - [Evaluation Function](#evaluation-function)
+    - [Key Parameters](#key-parameters)
+  - [Contributing](#contributing)
 
 ## Project Overview
 This chess game AI uses the Minimax algorithm to evaluate possible moves and make decisions. The AI simulates potential moves by both players up to a certain depth, evaluating the board's score at each move to determine the best strategy. Alpha-beta pruning is used to optimize the search process, enhancing performance.

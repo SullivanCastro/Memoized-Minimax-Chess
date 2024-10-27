@@ -39,6 +39,10 @@ def game(depth: int=3, threat: bool = False, defense: bool = False) -> None:
                 x1, y1 = event.pos
                 x1, y1 = (x1 - MARGIN) // SIZE, (y1 - MARGIN) // SIZE  # Convert mouse click to board coordinates
 
+                if x1 < 0 or x1 >= 8 or y1 < 0 or y1 >= 8:
+                    print("Out of bounds")
+                    continue
+
                 if main_board.grid[x1, y1] != 0 and main_board.grid[x1, y1] * turn > 0:
                     click = False
                     
