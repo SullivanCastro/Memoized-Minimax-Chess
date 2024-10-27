@@ -1,6 +1,6 @@
 import pygame
 import numpy as np
-from piece import *
+from piece_old2 import *
 
 # Global variables
 margin = 10
