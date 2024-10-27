@@ -6,3 +6,4 @@
 *.vscode*
 *jit*
 *old*
+*board.py*

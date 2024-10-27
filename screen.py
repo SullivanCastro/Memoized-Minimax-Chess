@@ -63,6 +63,8 @@ class Screen:
         """
         if turn % 2 == 0:
             self.__screen.fill((255, 255, 255, 255))
+        else:
+            self.__screen.fill((0, 0, 0, 255))
         for row in range(NUM_SQUARES):
             for col in range(NUM_SQUARES):
                 color = (0, 168, 107) if (row + col) % 2 != 0 else (249, 228, 183)

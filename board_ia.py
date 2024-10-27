@@ -21,7 +21,7 @@ class Board:
     Class to represent and manage the chessboard state, including piece positions,
     move tracking, and board evaluations for minimax calculations.
     """
-    def __init__(self, initial_pieces: ArrayLike = INITIAL_PIECES, moved: ArrayLike=[], transposition_table: dict={}) -> None:
+    def __init__(self, initial_pieces: ArrayLike = INITIAL_PIECES, moved: ArrayLike=[], transposition_table: dict={}, threat: bool = False, defense: bool = False) -> None:
         """
         Initialize the Board with pieces in starting positions, moved status for special moves,
         and an optional transposition table for memoization.
@@ -42,6 +42,8 @@ class Board:
         self.turn = 0  # Tracks the current turn (0: White, 1: Black)
         self.checkmate = False # Checkmate status flag
         self.__transposition_table = transposition_table # Cache of board states and scores
+        self.__threat = threat
+        self.__defense = defense
 
 
     def __getitem__(self, key: tuple) -> None:
@@ -96,8 +98,8 @@ class Board:
             for coord in zip(*np.where(self.grid * self.turn > 10)):
                 possible_moves = self.possible_moves(coord)
                 for move in possible_moves:
-                    if self[move].value < 0:
-                        score += abs(self[move].value) / 10
+                    if self[move] < 0:
+                        score += abs(self[move]) / 10
             
         # If defense assessment is enabled, when a piece is threatened
         if defense:
@@ -117,7 +119,7 @@ class Board:
         Returns:
             Board: New Board instance with the same layout and state.
         """
-        new_board                     = Board(self.grid, self.__moved.copy(), self.__transposition_table) 
+        new_board                     = Board(self.grid, self.__moved.copy(), self.__transposition_table, self.__threat, self.__defense) 
         new_board.turn                = self.turn
         new_board.checkmate           = self.checkmate
         return new_board
@@ -133,7 +135,7 @@ class Board:
         Returns:
             bool: True if color's king is in check, False otherwise.
         """
-        king_pos = np.where(self.grid * color == 90)
+        king_pos = np.where(self.grid * color == 900)
         
         for coord in zip(*np.where(self.grid * color < 0)):
             if king_pos in MovePieces.possible_moves(self.grid, self.__moved, coord):
@@ -197,7 +199,7 @@ class Board:
         elif self.is_checkmate(-self.turn):
             score = -1e6
         else:
-            score = self._evaluate_board()
+            score = self._evaluate_board(threat=self.__threat, defense=self.__defense)
 
         self.__transposition_table[hash_key] = score
         return score
@@ -222,7 +224,7 @@ class Board:
         self[x, y] = 0
         self.__moved[(x, y)] = True
 
-        if abs(piece) == 90 and abs(new_x - x) == 2:
+        if abs(piece) == 900 and abs(new_x - x) == 2:
             if new_x > x:
                 self[new_x - 1, new_y] = self[new_x + 1, new_y]
                 self[new_x + 1, new_y] = 0
@@ -232,7 +234,7 @@ class Board:
                 self[new_x - 2, new_y] = 0
                 self.__moved[(new_x-2, new_y)] = True
 
-        if abs(piece) == 1:
+        if abs(piece) == 10:
             if y==0 and piece>0:
                 self[new_x, new_y] = 9
             elif y==7 and piece<0:

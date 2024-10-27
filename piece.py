@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from enum import Enum
 from itertools import product
-from numpy import sign
+import numpy as np
 from numpy.typing import ArrayLike 
 from utils import is_within_board, is_move_valid
 
@@ -33,23 +33,23 @@ class PieceValues(Enum):
     """
     Enum class for the values of the chess pieces
     """
-    PAWN_BLACK = -1
-    PAWN_WHITE = 1
+    PAWN_BLACK = -10
+    PAWN_WHITE = 10
 
-    BISHOP_BLACK = -3
-    BISHOP_WHITE = 3
+    BISHOP_BLACK = -30
+    BISHOP_WHITE = 30
 
-    KNIGHT_BLACK = -4
-    KNIGHT_WHITE = 4
+    KNIGHT_BLACK = -40
+    KNIGHT_WHITE = 40
 
-    ROOK_BLACK = -5
-    ROOK_WHITE = 5
+    ROOK_BLACK = -50
+    ROOK_WHITE = 50
 
-    QUEEN_BLACK = -9
-    QUEEN_WHITE = 9
+    QUEEN_BLACK = -90
+    QUEEN_WHITE = 90
 
-    KING_BLACK = -90
-    KING_WHITE = 90
+    KING_BLACK = -900
+    KING_WHITE = 900
 
 
 def get_image_by_value(value: int) -> str:
@@ -102,19 +102,20 @@ class MovePieces:
         """
         value = board[x, y]
         moves = []
+        dir = np.sign(value)
 
         # Forward move
-        if is_move_valid((x, y - value), board, value):
-            moves.append((x, y - value))
+        if is_move_valid((x, y - dir), board, value):
+            moves.append((x, y - dir))
 
         # Double move if not moved
-        if not moved[x,y] and is_move_valid((x, y - 2 * value), board, value) and board[x, y - value]==0:
-            moves.append((x, y - 2 * value))
+        if not moved[x,y] and is_move_valid((x, y - 2 * dir), board, value) and board[x, y - dir]==0:
+            moves.append((x, y - 2 * dir))
 
         # Diagonal captures
         for dx in [-1, 1]:
-            if is_within_board((x + dx, y - value)) and board[x + dx, y - value] * value < 0:
-                moves.append((x + dx, y - value))
+            if is_within_board((x + dx, y - dir)) and board[x + dx, y - dir] * value < 0:
+                moves.append((x + dx, y - dir))
 
         return moves
     
@@ -140,8 +141,8 @@ class MovePieces:
                 step_x, step_y = dx, dy
                 while is_move_valid((x + step_x, y + step_y), board, value):
                     moves.append((x + step_x, y + step_y))
-                    step_x += sign(dx)
-                    step_y += sign(dy)
+                    step_x += np.sign(dx)
+                    step_y += np.sign(dy)
                 
                 # Check for capture
                 if is_move_valid((x + step_x, y + step_y), board, value, True):
@@ -199,8 +200,8 @@ class MovePieces:
             step_x, step_y = dx, dy
             while is_move_valid((x + step_x, y + step_y), board, value):
                 moves.append((x + step_x, y + step_y))
-                step_x += sign(dx)
-                step_y += sign(dy)
+                step_x += np.sign(dx)
+                step_y += np.sign(dy)
 
             # Check for capture
             if is_move_valid((x + step_x, y + step_y), board, value, True):
@@ -229,8 +230,8 @@ class MovePieces:
             step_x, step_y = dx, dy
             while is_move_valid((x + step_x, y + step_y), board, value):
                 moves.append((x + step_x, y + step_y))
-                step_x += sign(dx)
-                step_y += sign(dy)
+                step_x += np.sign(dx)
+                step_y += np.sign(dy)
 
             # Check for capture
             if is_move_valid((x + step_x, y + step_y), board, value, True):
@@ -284,17 +285,17 @@ class MovePieces:
             list: List of possible moves for the piece
         """
         piece_value = board[coord]
-        if abs(piece_value) == 1:
+        if   abs(piece_value) == 10:
             return MovePieces.pawn_move(board, moved, *coord)
-        elif abs(piece_value) == 5:
-            return MovePieces.rook_move(board, moved, *coord)
-        elif abs(piece_value) == 4:
-            return MovePieces.knight_move(board, moved, *coord)
-        elif abs(piece_value) == 3:
+        elif abs(piece_value) == 30:
             return MovePieces.bishop_move(board, moved, *coord)
-        elif abs(piece_value) == 9:
-            return MovePieces.queen_move(board, moved, *coord)
+        elif abs(piece_value) == 40:
+            return MovePieces.knight_move(board, moved, *coord)
+        elif abs(piece_value) == 50:
+            return MovePieces.rook_move(board, moved, *coord)
         elif abs(piece_value) == 90:
+            return MovePieces.queen_move(board, moved, *coord)
+        elif abs(piece_value) == 900:
             return MovePieces.king_move(board, moved, *coord)
         
         

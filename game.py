@@ -7,7 +7,7 @@ from screen import Screen, MARGIN, SIZE
 pygame.init()
 
 
-def game(depth: int=3):
+def game(depth: int=3, threat: bool = False, defense: bool = False) -> None:
     """
     Launch the game with the specified depth for the minimax algorithm. I personnally recommand a depth of 3.
 
@@ -21,7 +21,7 @@ def game(depth: int=3):
     running = True
     turn = 1  # 1 for white, -1 for black
 
-    main_board = Board()
+    main_board = Board(threat=threat, defense=defense)
     screen = Screen()
 
     # Game loop
@@ -117,9 +117,12 @@ def game(depth: int=3):
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser(description="Play a game of chess against the AI")
-    parser.add_argument("--depth", type=int, default=3, help="Depth of the minimax algorithm")
+    parser.add_argument("--depth", type=int, default=3, help="Depth of the minimax algorithm (default: 3)")
+    parser.add_argument("--threat", action="store_true", help="Enable threat heuristic (default: False)")
+    parser.add_argument("--defense", action="store_true", help="Enable mobility heuristic (default: False)")
 
     args = parser.parse_args()
 
-    game(args.depth)
+    game(args.depth, args.threat, args.defense)
