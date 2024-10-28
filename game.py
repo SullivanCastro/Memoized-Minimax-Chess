@@ -87,7 +87,8 @@ def game(depth: int=3, threat: bool = False, defense: bool = False) -> None:
             # AI Turn
             elif turn == -1:
                 print("Calculating optimal move...")
-                coord_piece_ai, new_position, danger = main_board.minimax(depth, -np.inf, np.inf, False)
+                coord_piece_ai, new_position, danger = main_board.minimax(depth, -np.inf, np.inf, depth%2==0)
+                print(f"AI moves {coord_piece_ai} to {new_position} with danger {danger}")
 
                 if danger == np.inf:
                     main_board.checkmate = -5
