@@ -37,7 +37,7 @@ class Board:
     Class to represent and manage the chessboard state, including piece positions,
     move tracking, and board evaluations for minimax calculations.
     """
-    def __init__(self, initial_pieces: ArrayLike = INITIAL_PIECES, moved: ArrayLike=[], best_piece_coord_table: dict={}, best_move_table: dict = {}, eval_table: dict={}, threat: bool = False, defense: bool = False) -> None:
+    def __init__(self, initial_pieces: ArrayLike = INITIAL_PIECES, moved: ArrayLike=[], max_best_piece_coord_table: dict={}, max_best_move_table: dict = {}, max_eval_table: dict={}, min_best_piece_coord_table: dict={}, min_best_move_table: dict = {}, min_eval_table: dict={}, threat: bool = False, defense: bool = False) -> None:
         """
         Initialize the Board with pieces in starting positions, moved status for special moves,
         and an optional transposition table for memoization.
@@ -62,9 +62,17 @@ class Board:
                             PieceValues.PAWN_WHITE.value])
         self.turn = 0  # Tracks the current turn (0: White, 1: Black)
         self.checkmate = False # Checkmate status flag
-        self.__best_piece_coord_table = best_piece_coord_table # Cache of best piece coordinates
-        self.__best_move_table = best_move_table # Cache of best move coordinates
-        self.__eval_table = eval_table # Cache of board states and scores
+
+        # Max evaluation table for memoization
+        self.__max_best_piece_coord_table = max_best_piece_coord_table # Cache of best piece coordinates
+        self.__max_best_move_table        = max_best_move_table # Cache of best move coordinates
+        self.__max_eval_table             = max_eval_table # Cache of board states and scores
+
+        # Min evaluation table for memoization
+        self.__min_best_piece_coord_table = min_best_piece_coord_table # Cache of best piece coordinates
+        self.__min_best_move_table        = min_best_move_table # Cache of best move coordinates
+        self.__min_eval_table             = min_eval_table # Cache of board states and scores
+
         self.__threat = threat
         self.__defense = defense
 
@@ -102,8 +110,41 @@ class Board:
         """
         return hash(str(self.grid.flatten()))
     
+
+    def _memoized(self, maximizing: bool, hash_key: str) -> dict:
+        """
+        Return the appropriate transposition table based on the current player.
+
+        Args:
+            maximizing (bool): True if maximizing player, False if minimizing.
+
+        Returns:
+            dict: Transposition table for the current player.
+        """
+        if maximizing:
+            return hash_key in self.__max_eval_table
+        else:
+            return hash_key in self.__min_eval_table
+        
+
+    def _get_memoized(self, maximizing: bool, hash_key: str) -> tuple:
+        """
+        Retrieve the best piece and move coordinates and the evaluation score from the transposition table.
+
+        Args:
+            maximizing (bool): True if maximizing player, False if minimizing.
+            hash_key (str): Hash value representing the current board layout.
+
+        Returns:
+            tuple: Best piece coordinates, best move coordinates, and the evaluation score.
+        """
+        if maximizing:
+            return self.__max_best_piece_coord_table[hash_key], self.__max_best_move_table[hash_key], self.__max_eval_table[hash_key]
+        else:
+            return self.__min_best_piece_coord_table[hash_key], self.__min_best_move_table[hash_key], self.__min_eval_table[hash_key]
     
-    def _fill_tables(self, hash_key: int, best_piece_coord: tuple, best_move: tuple, eval: float) -> None:
+    
+    def _fill_tables(self, maximizing:bool, hash_key: int, best_piece_coord: tuple, best_move: tuple, eval: float) -> None:
         """
         Fill the transposition tables with the best piece and move coordinates and the evaluation score.
 
@@ -113,9 +154,14 @@ class Board:
             best_move (tuple): Best move coordinates for the current player.
             eval (float): Evaluation score for the current board state.
         """
-        self.__best_piece_coord_table[hash_key] = best_piece_coord
-        self.__best_move_table[hash_key]        = best_move
-        self.__eval_table[hash_key]             = eval
+        if maximizing:
+            self.__max_best_piece_coord_table[hash_key] = best_piece_coord
+            self.__max_best_move_table[hash_key]        = best_move
+            self.__max_eval_table[hash_key]             = eval
+        else:
+            self.__min_best_piece_coord_table[hash_key] = best_piece_coord
+            self.__min_best_move_table[hash_key]        = best_move
+            self.__min_eval_table[hash_key]             = eval
 
 
     def _evaluate_board(self, threat: bool = False, defense: bool = False) -> float:
@@ -157,7 +203,7 @@ class Board:
         Returns:
             Board: New Board instance with the same layout and state.
         """
-        new_board                     = Board(self.grid.copy(), self.__moved.copy(), self.__best_piece_coord_table, self.__best_move_table, self.__eval_table, self.__threat, self.__defense) 
+        new_board                     = Board(self.grid.copy(), self.__moved.copy(), self.__max_best_piece_coord_table, self.__max_best_move_table, self.__max_eval_table, self.__min_best_piece_coord_table, self.__min_best_move_table, self.__min_eval_table, self.__threat, self.__defense) 
         new_board.turn                = self.turn
         new_board.checkmate           = self.checkmate
         return new_board
@@ -227,10 +273,6 @@ class Board:
         Returns:
             float: Board evaluation score.
         """
-        hash_key = self._hash_state()
-        
-        if hash_key in self.__eval_table:
-            return self.__eval_table[hash_key]
         
         if self.is_checkmate(self.turn):
             score = 1e6
@@ -239,7 +281,6 @@ class Board:
         else:
             score = self._evaluate_board(threat=self.__threat, defense=self.__defense)
 
-        self.__eval_table[hash_key] = score
         return score
     
 
@@ -298,8 +339,8 @@ class Board:
             return None, None, score  # No piece or move, just the evaluation (danger)
         
         hash_key = self._hash_state()
-        if hash_key in self.__best_piece_coord_table:
-            return self.__best_piece_coord_table[hash_key], self.__best_move_table[hash_key], self.__eval_table[hash_key]
+        if self._memoized(maximizing, hash_key):
+            return self._get_memoized(maximizing, hash_key)
         
         best_move = None
         best_piece_coord = None
@@ -314,7 +355,7 @@ class Board:
                         best_piece_coord = coord
                         best_move        = move
                         max_eval         = eval
-                        self._fill_tables(hash_key, coord, move, eval)
+                        self._fill_tables(not maximizing, hash_key, coord, move, eval)
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break  # Beta cutoff
@@ -330,7 +371,7 @@ class Board:
                         best_piece_coord = coord
                         best_move        = move
                         min_eval         = eval
-                        self._fill_tables(hash_key, coord, move, eval)
+                        self._fill_tables(not maximizing, hash_key, coord, move, eval)
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break  # Alpha cutoff
