@@ -355,7 +355,7 @@ class Board:
                         best_piece_coord = coord
                         best_move        = move
                         max_eval         = eval
-                        self._fill_tables(not maximizing, hash_key, coord, move, eval)
+                        self._fill_tables(False, hash_key, coord, move, eval)
                     alpha = max(alpha, eval)
                     if beta <= alpha:
                         break  # Beta cutoff
@@ -371,7 +371,7 @@ class Board:
                         best_piece_coord = coord
                         best_move        = move
                         min_eval         = eval
-                        self._fill_tables(not maximizing, hash_key, coord, move, eval)
+                        self._fill_tables(True, hash_key, coord, move, eval)
                     beta = min(beta, eval)
                     if beta <= alpha:
                         break  # Alpha cutoff
