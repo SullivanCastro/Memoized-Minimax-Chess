@@ -31,8 +31,8 @@ This chess game AI uses the Minimax algorithm to evaluate possible moves and mak
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/chess-minimax-ai.git
-   cd chess-minimax-ai
+   git clone git@github.com:SullivanCastro/Memoized-Minimax-Chess.git
+   cd Memoized-Minimax-Chess
    ```
    
 2. Install dependencies
