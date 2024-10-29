@@ -1,6 +1,6 @@
 # Chess AI with Minimax Algorithm
 
-![Fool's Mate + Small Castling](Image/Chess.gif)
+![Fool's Mate + Small Castling](Image/Memoized-Minimax-Chess.gif)
 
 
 This project implements a chess game AI powered by the Minimax algorithm with alpha-beta pruning. The AI is designed to play competitive chess moves, simulating intelligent gameplay based on a score-evaluation system. The project can serve as a base for further AI development in chess or other board games.
